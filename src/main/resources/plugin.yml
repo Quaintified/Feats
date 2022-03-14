@@ -1,0 +1,4 @@
+name: Feat
+version: '${version}'
+main: com.dndcraft.quaint.feat.Feat
+api-version: 1.18
