@@ -35,7 +35,10 @@ public class FeatWallClimb extends FeatBase {
         Player player = event.getPlayer(); // Player.
         TimedPreCondition condition = (TimedPreCondition) ConditionHandler.getPreConditionBy(ConditionIdentifier.ON_GROUND.name, true);
         if (condition == null) return;
-        if (condition.isCurrentlyDone(player)) return;
+        if (! condition.isCurrentlyDone(player)) return;
+
+        BasicUtils.info("WC Condition: " + condition.conditionedPlayers);
+        BasicUtils.info("WC Condition: " + condition.timedPlayers.values());
 
         Location player_loc = player.getLocation(); // Player's location.
 
@@ -45,8 +48,6 @@ public class FeatWallClimb extends FeatBase {
             if (! stack.getType().equals(Material.AIR)) return;
         }
         BasicUtils.putGrabberHand(player);
-
-        Feat.get().getLogger().info("WC Interacted Item: null");
 
         // Get the clicked block and check if it is null or liquid.
         Block block = event.getClickedBlock();
@@ -59,14 +60,10 @@ public class FeatWallClimb extends FeatBase {
             return;
         }
 
-        Feat.get().getLogger().info("WC Interacted Block: " + block.getType());
-
         if (MathUtils.getDistance2DXZ(player_loc, MathUtils.getCenteredLocation(block.getLocation())) > 1d) {
             BasicUtils.removeAllGrabbers(player);
             return;
         }
-
-        Feat.get().getLogger().info("WC Interacted Block: less than 1 block away!");
 
         // Check if block above hang are air (empty).
         if (! block.getLocation().add(0, 1, 0).getBlock().getType().equals(Material.AIR)) {
@@ -84,8 +81,6 @@ public class FeatWallClimb extends FeatBase {
             return;
         }
 
-        Feat.get().getLogger().info("WC Interacted! Is Sneaking!");
-
         // Latch the player. (Create the wall hang.)
         if (! isPlayerLatched(player)) {
             latchedPlayers.add(new LatchedPlayer(player,
@@ -100,8 +95,6 @@ public class FeatWallClimb extends FeatBase {
                             player
                     )
             ));
-        } else {
-            Feat.get().getLogger().info("WC Not added!");
         }
 
         Feat.get().getLogger().info("WC Interaction Done!");

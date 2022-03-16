@@ -39,6 +39,7 @@ public class BasicUtils {
 
     public static void startTimerRepeating(Runnable runnable, long delay, long period) {
         Feat.get().getServer().getScheduler().scheduleSyncRepeatingTask(Feat.get(), runnable, delay, period);
+        info("Enabled runnable: " + runnable.getClass().getSimpleName());
     }
 
     public static void registerListener(Listener listener) {

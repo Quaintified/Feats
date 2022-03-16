@@ -9,6 +9,7 @@ import com.dndcraft.quaint.feat.utils.BasicUtils;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerMoveEvent;
 
 public class DefaultListener implements Listener {
     public DefaultListener() {
@@ -18,14 +19,17 @@ public class DefaultListener implements Listener {
     }
 
     @EventHandler
-    public void onJump(PlayerJumpEvent event) {
+    public void onJump(PlayerMoveEvent event) {
         if (event.isCancelled()) return;
 
         Player player = event.getPlayer();
-        if (player.isOnGround()) return;
 
-        TimedPreCondition condition = (TimedPreCondition) ConditionHandler.getPreConditionBy(ConditionIdentifier.ON_GROUND.name, true);
-        if (condition == null) return;
-        condition.addTimedPlayer(player);
+//        BasicUtils.info("Event Fired!");
+
+        if (player.isOnGround()) {
+            TimedPreCondition condition = (TimedPreCondition) ConditionHandler.getPreConditionBy(ConditionIdentifier.ON_GROUND.name, true);
+            if (condition == null) return;
+            condition.addTimedPlayer(player);
+        }
     }
 }

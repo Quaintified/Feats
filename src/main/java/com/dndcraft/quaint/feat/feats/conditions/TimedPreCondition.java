@@ -1,94 +1,53 @@
 package com.dndcraft.quaint.feat.feats.conditions;
 
-import com.dndcraft.quaint.feat.utils.BasicUtils;
+import com.dndcraft.quaint.feat.Feat;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.TreeMap;
+import java.util.HashMap;
 
 public class TimedPreCondition extends PreCondition implements Runnable {
-    public int timeOut = 0;
-    public int reset;
+    public int timeOut;
 
-    public TreeMap<Integer, List<Player>> timedPlayers = new TreeMap<>();
+    public HashMap<Player, Integer> timedPlayers = new HashMap<>();
 
     public TimedPreCondition(String identifier, int timeOutInTicks) {
         super(identifier);
         this.isTimed = true;
-        this.reset = timeOutInTicks;
-        BasicUtils.startTimerRepeating(this, 0L, 1L);
+        this.timeOut = timeOutInTicks;
+        Feat.get().getServer().getScheduler().scheduleSyncRepeatingTask(Feat.get(), this, 0, 1);
     }
 
     @Override
     public void run() {
-        if (timeOut <= 0 && timeOut != -1) {
-            timeOut = reset;
-            tick();
-        }
+        HashMap<Player, Integer> newMap = new HashMap<>();
 
-        timeOut --;
-    }
-
-    public void tick() {
-        TreeMap<Integer, List<Player>> newMap = new TreeMap<>();
-
-        for (int ticksLeft : timedPlayers.keySet()) {
-            int toBeLeft = ticksLeft - 1;
+        for (Player player : timedPlayers.keySet()) {
+            int toBeLeft = timedPlayers.get(player) - 1;
             if (toBeLeft <= 0) {
-                for (Player player : timedPlayers.get(ticksLeft)) {
-                    unconditionPlayer(player);
-                }
+                unconditionPlayer(player);
+                continue;
             }
-            newMap.put(toBeLeft, timedPlayers.get(ticksLeft));
+            newMap.put(player, toBeLeft);
         }
 
         timedPlayers = newMap;
     }
-
-    public List<Player> getTimedPlayersWithTicksLeft(int ticksLeft) {
-        return timedPlayers.get(ticksLeft);
-    }
+//    public List<Player> getTimedPlayersWithTicksLeft(int ticksLeft) {
+//        List<Player> players = timedPlayers.get(ticksLeft);
+//        return players == null ? new ArrayList<>() : players;
+//    }
 
     public boolean timedPlayersContainsPlayer(Player player) {
-        for (int i : timedPlayers.keySet()) {
-            for (Player p : timedPlayers.get(i)) {
-                if (p.equals(player)) return true;
-            }
-        }
-
-        return false;
+        return timedPlayers.containsKey(player);
     }
 
     public void addTimedPlayer(Player player) {
         if (! conditionedPlayers.contains(player)) conditionPlayer(player);
-
-        if (! timedPlayersContainsPlayer(player)) {
-            List<Player> players = getTimedPlayersWithTicksLeft(reset);
-            players.add(player);
-
-            timedPlayers.put(reset, players);
-        } else {
-            removeTimedPlayer(player);
-            addTimedPlayer(player);
-        }
+        timedPlayers.put(player, timeOut);
     }
 
     public void removeTimedPlayer(Player player) {
         if (conditionedPlayers.contains(player)) unconditionPlayer(player);
-
-        if (timedPlayersContainsPlayer(player)) {
-            for (int i : timedPlayers.keySet()) {
-                List<Player> toSet = new ArrayList<>();
-
-                for (Player p : new ArrayList<>(timedPlayers.get(i))) {
-                    if (p.equals(player)) continue;
-
-                    toSet.add(p);
-                }
-
-                timedPlayers.put(i, toSet);
-            }
-        }
+        timedPlayers.remove(player);
     }
 }

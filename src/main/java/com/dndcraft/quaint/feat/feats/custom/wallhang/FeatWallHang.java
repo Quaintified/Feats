@@ -36,7 +36,7 @@ public class FeatWallHang extends FeatBase {
         Player player = event.getPlayer(); // Player.
         TimedPreCondition condition = (TimedPreCondition) ConditionHandler.getPreConditionBy(ConditionIdentifier.ON_GROUND.name, true);
         if (condition == null) return;
-        if (! condition.isCurrentlyDone(player)) return;
+        if (condition.isCurrentlyDone(player)) return;
 
         Location player_loc = player.getLocation(); // Player's location.
 
